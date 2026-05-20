@@ -23,6 +23,16 @@
 | Uvicorn | ASGI сервер |
 | Pydantic | Валидация данных |
 
+## 🧮 Поддерживаемые алгоритмы
+
+| Алгоритм | ENV значение | Описание | Когда использовать |
+|----------|--------------|----------|-------------------|
+| Dijkstra | `dijkstra` | Классический алгоритм Дейкстры | По умолчанию, универсальный |
+| A* | `astar` | A* с эвристикой евклидова расстояния | Быстрее на больших расстояниях |
+| Bidirectional | `bidirectional` | Двунаправленный алгоритм Дейкстры | Эффективен для длинных маршрутов |
+| Contraction Hierarchies | `ch` | Предварительная обработка графа | Очень быстро, но долгий старт |
+| ALT | `alt` | A* с потенциалами Лэндиса-Хефнера | Быстрый, требует памяти |
+
 ## 📁 Структура проекта
 city_closer/
 ├── route_service/
@@ -45,6 +55,32 @@ city_closer/
 
 
 ## 🚀 Установка и запуск
+### Способ 1: Docker (рекомендуется для production)
+
+#### 1. Подготовка кэша графа (однократно)
+
+Граф не загружается в Docker-образ из-за большого размера (~200-500 MB). Он монтируется как volume.
+
+```bash
+    mkdir -p cache
+```
+
+# Загрузка графа (займет 5-10 минут)
+```bash
+    python -c "
+        from service.graph_loader import MoscowGraphLoader
+        loader = MoscowGraphLoader(network_type='drive')
+        graph = loader.load_graph(
+            use_cache=True, 
+            cache_file='cache/moscow_graph_drive.pkl'
+        )
+        print('Graph saved to cache/')
+    "
+```
+Запуск сервиса в докере
+```bash
+    docker-compose up -d
+```
 
 ### 1. Клонирование репозитория
 
